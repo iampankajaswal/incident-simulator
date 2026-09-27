@@ -5,7 +5,7 @@ external monitoring dependencies.
 
 ### Incident Flow
 
-```text
+
 High CPU Scenario
        |
        v
@@ -25,6 +25,8 @@ Rules-Based RCA
        |
        v
 Incident Resolved
+
+
 
 ### Health
 
@@ -61,7 +63,6 @@ Incident Resolved
 ### Swagger
 
 <img width="1539" height="989" alt="image" src="https://github.com/user-attachments/assets/6fc31930-b056-43d7-8f17-c93018ac8285" />
-
 
 
 
