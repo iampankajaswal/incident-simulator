@@ -1,4 +1,4 @@
-## Milestone 1 — High CPU Incident Simulation
+## Milestone 1  High CPU Incident Simulation
 
 The first milestone implements a complete local incident lifecycle without
 external monitoring dependencies.
