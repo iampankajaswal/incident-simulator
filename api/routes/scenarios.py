@@ -1,7 +1,11 @@
+
+from concurrent.futures import ThreadPoolExecutor
+from threading import Lock
+
 from fastapi import APIRouter, HTTPException
 
-from api.models import Alert, ScenarioRunRequest, ScenarioRunResponse
-from controller.incident_controller import IncidentController
+from api.metrics import CPU_STRESS_ACTIVE, CPU_STRESS_WORKERS
+from api.models import ScenarioRunRequest
 from simulator.cpu.stress import run_cpu_stress
 
 router = APIRouter(
@@ -9,7 +13,21 @@ router = APIRouter(
     tags=["scenarios"],
 )
 
-incident_controller = IncidentController()
+executor = ThreadPoolExecutor(max_workers=2)
+scenario_lock = Lock()
+scenario_running = False
+
+
+def _run_cpu_stress_background(duration: int, workers: int) -> None:
+    global scenario_running
+
+    try:
+        run_cpu_stress(duration=duration, workers=workers)
+    finally:
+        CPU_STRESS_ACTIVE.set(0)
+        CPU_STRESS_WORKERS.set(0)
+        with scenario_lock:
+            scenario_running = False
 
 
 @router.get("")
@@ -25,40 +43,39 @@ def list_scenarios() -> dict:
     }
 
 
-@router.post(
-    "/high-cpu/run",
-    response_model=ScenarioRunResponse,
-)
-def run_high_cpu(request: ScenarioRunRequest) -> ScenarioRunResponse:
-    try:
-        run_cpu_stress(
-            duration=request.duration,
-            workers=request.workers,
-        )
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=400,
-            detail=str(exc),
-        ) from exc
+@router.post("/high-cpu/run")
+def run_high_cpu(request: ScenarioRunRequest) -> dict:
+    global scenario_running
 
-    alert = Alert(
-        alert_name="HighCPU",
-        severity="SEV-2",
-        scenario="high-cpu",
-        service="incident-simulator",
-    )
+    with scenario_lock:
+        if scenario_running:
+            raise HTTPException(
+                status_code=409,
+                detail="A CPU stress scenario is already running.",
+            )
 
-    incident = incident_controller.create_incident(alert)
+        scenario_running = True
+        CPU_STRESS_ACTIVE.set(1)
+        CPU_STRESS_WORKERS.set(request.workers)
 
-    incident_controller.run_rca(incident.id)
-    incident_controller.resolve_incident(incident.id)
+        try:
+            executor.submit(
+                _run_cpu_stress_background,
+                request.duration,
+                request.workers,
+            )
+        except Exception:
+            scenario_running = False
+            CPU_STRESS_ACTIVE.set(0)
+            CPU_STRESS_WORKERS.set(0)
+            raise
 
-    return ScenarioRunResponse(
-        scenario="high-cpu",
-        status="completed",
-        incident_id=incident.id,
-        message=(
-            f"High CPU simulation completed and incident "
-            f"{incident.id} was generated."
+    return {
+        "scenario": "high-cpu",
+        "status": "started",
+        "message": (
+            f"CPU stress started with {request.workers} worker(s) "
+            f"for {request.duration} second(s)."
         ),
-    )
+    }
+

@@ -1,6 +1,8 @@
+
 from fastapi import FastAPI
 
-from api.routes import incidents, scenarios, timeline
+from api.metrics import metrics_response
+from api.routes import incidents, scenarios, timeline, webhooks
 
 app = FastAPI(
     title="Incident Management Simulator",
@@ -8,7 +10,7 @@ app = FastAPI(
         "Simulate infrastructure incidents and automatically "
         "generate alerts, incidents, timelines and RCA."
     ),
-    version="0.1.0",
+    version="0.2.0",
 )
 
 
@@ -20,6 +22,12 @@ def health() -> dict:
     }
 
 
+@app.get("/metrics", include_in_schema=False)
+def metrics():
+    return metrics_response()
+
+
 app.include_router(scenarios.router)
 app.include_router(incidents.router)
 app.include_router(timeline.router)
+app.include_router(webhooks.router)

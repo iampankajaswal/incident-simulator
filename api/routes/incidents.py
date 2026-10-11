@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
 from api.models import Incident
-from api.routes.scenarios import incident_controller
+from controller.dependencies import incident_controller
 
 router = APIRouter(
     prefix="/incidents",
