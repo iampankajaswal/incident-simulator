@@ -1,0 +1,13 @@
+groups:
+  - name: incident-simulator
+    rules:
+      - alert: HighCPU
+        expr: incident_simulator_cpu_stress_active == 1
+        for: 2s
+        labels:
+          severity: SEV-2
+          scenario: high-cpu
+          service: incident-simulator
+        annotations:
+          summary: "High CPU simulation is active"
+          description: "The simulated CPU workload has been active for at least 2 seconds."
