@@ -110,6 +110,15 @@ The incident simulator integrates Prometheus and Alertmanager to demonstrate how
 
 <img width="1132" height="868" alt="image" src="https://github.com/user-attachments/assets/1cbbf238-4659-4118-a2b1-4107530a0d96" />
 
+<img width="1920" height="273" alt="image" src="https://github.com/user-attachments/assets/413f3b95-25b3-4ff5-923d-c830373df16d" />
+
+
+#### 4. Webhooks
+
+<img width="1223" height="493" alt="image" src="https://github.com/user-attachments/assets/2531aba4-8587-4379-8ded-e34d9aab069e" />
+
+<img width="1920" height="261" alt="image" src="https://github.com/user-attachments/assets/0f09386e-91c5-45dd-a150-322270596767" />
+
 
 
 ### Run Locally
@@ -126,9 +135,14 @@ Start the FastAPI application in a separate terminal:
 uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
+<img width="1220" height="543" alt="image" src="https://github.com/user-attachments/assets/88498cb6-0f2d-4e44-9423-d2d18c8deea7" />
+
+
+<img width="912" height="202" alt="image" src="https://github.com/user-attachments/assets/1dd4a4a0-43b8-4812-bf70-69d7202f66de" />
+
 
 ### Expected Workflow
 
-**CPU simulation → Prometheus metric → HighCPU alert → Alertmanager webhook → Incident creation → RCA and timeline → Incident resolution**
+**CPU simulation -> Prometheus metric -> HighCPU alert -> Alertmanager webhook -> Incident creation -> RCA and timeline -> Incident resolution**
 
 The application currently maintains incident state in memory, so incidents are not persisted across API restarts.
