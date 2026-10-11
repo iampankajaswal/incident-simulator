@@ -66,3 +66,69 @@ Incident Resolved
 
 
 
+## Milestone 2: Prometheus + Alertmanager Integration
+
+The incident simulator integrates Prometheus and Alertmanager to demonstrate how monitoring alerts can automatically trigger incident management workflows.
+
+### Architecture
+
+1. Prometheus scrapes metrics exposed by the FastAPI application at `/metrics`.
+2. Prometheus evaluates alerting rules, including the `HighCPU` rule.
+3. When an alert fires, Alertmanager sends a webhook to the incident simulator.
+4. FastAPI creates an incident, starts the RCA workflow, and records timeline events.
+5. When the alert resolves, the webhook updates the incident status to `RESOLVED`.
+
+### Monitoring Stack
+
+- **Prometheus:** Metrics collection and alert rule evaluation.
+- **Alertmanager:** Alert grouping and firing/resolved notification delivery.
+- **FastAPI:** Webhook processing and incident lifecycle management.
+- **RCA engine:** Deterministic root cause analysis for supported scenarios.
+- **Docker Compose:** Local orchestration of Prometheus and Alertmanager.
+
+### Screenshots
+
+#### 1. Prometheus Targets
+
+<img width="1919" height="364" alt="image" src="https://github.com/user-attachments/assets/a3f289d2-7b8c-4cf7-8f8a-e66cb1e1f09a" />
+
+
+#### 2. Prometheus Alert Rules
+
+<img width="1919" height="534" alt="image" src="https://github.com/user-attachments/assets/7a4f2e42-4497-4b55-a5b9-c4d95a10a2c5" />
+
+
+#### 3. Alertmanager
+
+<img width="1146" height="198" alt="image" src="https://github.com/user-attachments/assets/74d453f2-a79e-4eec-8440-545cf92a1b1d" />
+
+
+
+#### 4. Incident API and RCA
+
+<img width="1920" height="995" alt="image" src="https://github.com/user-attachments/assets/68cc7b06-ca9b-47dc-99b4-bf549d7c6366" />
+
+<img width="1132" height="868" alt="image" src="https://github.com/user-attachments/assets/1cbbf238-4659-4118-a2b1-4107530a0d96" />
+
+
+
+### Run Locally
+
+Start the monitoring stack:
+
+```bash
+docker compose up -d
+```
+
+Start the FastAPI application in a separate terminal:
+
+```bash
+uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+
+### Expected Workflow
+
+**CPU simulation → Prometheus metric → HighCPU alert → Alertmanager webhook → Incident creation → RCA and timeline → Incident resolution**
+
+The application currently maintains incident state in memory, so incidents are not persisted across API restarts.
