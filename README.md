@@ -1,5 +1,6 @@
 ## Milestone 1  High CPU Incident Simulation
 
+
 The first milestone implements a complete local incident lifecycle without
 external monitoring dependencies.
 
@@ -145,4 +146,7 @@ uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
 
 **CPU simulation -> Prometheus metric -> HighCPU alert -> Alertmanager webhook -> Incident creation -> RCA and timeline -> Incident resolution**
 
+
 The application currently maintains incident state in memory, so incidents are not persisted across API restarts.
+
+
